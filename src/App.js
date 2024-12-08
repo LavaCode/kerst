@@ -258,6 +258,7 @@ const App = () => {
               value={newRecipe.description}
               onChange={handleAddRecipeChange}
               required
+              maxLength={75}
             />
             <input
               type="text"

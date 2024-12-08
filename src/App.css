@@ -163,6 +163,7 @@ section h2 {
 
 .recipe-card {
   background-color: #fff;
+  max-height: 400px;
   border-radius: 5px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   overflow: hidden;
