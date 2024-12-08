@@ -6,6 +6,7 @@
   "dependencies": {
     "@microlink/react": "^5.5.22",
     "cra-template": "1.2.0",
+    "firebase": "^11.0.2",
     "localforage": "^1.10.0",
     "meta-scraper": "^2.1.3",
     "node-html-parser": "^6.1.13",
@@ -18,7 +19,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
@@ -37,5 +40,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "gh-pages": "^6.2.0"
   }
 }

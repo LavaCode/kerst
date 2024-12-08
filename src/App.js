@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import localForage from 'localforage';
+import { db } from './firebase'; // Import Firebase configuration
+import { collection, onSnapshot, addDoc, deleteDoc, doc } from 'firebase/firestore';
 import './App.css';
 import MicrolinkCard from '@microlink/react';
 
@@ -30,54 +31,48 @@ const App = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const storedRecipes = await localForage.getItem('recipes');
-        if (storedRecipes) {
-          setRecipeList(storedRecipes);
-        }
+        const unsubscribe = onSnapshot(collection(db, "recipes"), (snapshot) => {
+          const fetchedRecipes = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+          setRecipeList(fetchedRecipes);
+        });
+
+        return () => unsubscribe();
       } catch (error) {
-        console.error('Error fetching data from localForage', error);
+        console.error('Error fetching data from Firebase', error);
       }
     };
 
     fetchData();
   }, []);
 
-  // Store data whenever there's a change
-  useEffect(() => {
-    const storeData = async () => {
-      try {
-        await localForage.setItem('recipes', recipeList);
-      } catch (error) {
-        console.error('Error saving data to localForage', error);
-      }
-    };
-
-    storeData();
-  }, [recipeList]);
-
-
   const handleAddRecipeChange = (e) => {
     const { name, value } = e.target;
     setNewRecipe({ ...newRecipe, [name]: value });
   };
 
-  const handleAddRecipeSubmit = (e) => {
+  const handleAddRecipeSubmit = async (e) => {
     e.preventDefault();
 
-    const newRecipeWithId = { ...newRecipe, id: Date.now(), likes: 0, likedByUser: false };
-    setRecipeList([...recipeList, newRecipeWithId]);
+    const newRecipeWithId = { ...newRecipe, likes: 0, likedByUser: false };
 
-    setNewRecipe({
-      title: '',
-      description: '',
-      category: 'Amuse',
-      submitter: '',
-      url: '',
-      thumbnail: '',
-    });
-    setIsAddRecipeVisible(false);
-
-    playSound();
+    try {
+      await addDoc(collection(db, "recipes"), newRecipeWithId);
+      setNewRecipe({
+        title: '',
+        description: '',
+        category: 'Amuse',
+        submitter: '',
+        url: '',
+        thumbnail: '',
+      });
+      setIsAddRecipeVisible(false);
+      playSound();
+    } catch (error) {
+      console.error('Error adding recipe to Firebase', error);
+    }
   };
 
   const handleLoginInputChange = (e) => {
@@ -101,10 +96,13 @@ const App = () => {
     setIsAddRecipeVisible(false);
   };
 
-  const handleDeleteRecipe = (id) => {
-    setRecipeList((prevList) => prevList.filter((recipe) => recipe.id !== id));
+  const handleDeleteRecipe = async (id) => {
+    try {
+      await deleteDoc(doc(db, "recipes", id));
+    } catch (error) {
+      console.error('Error deleting recipe from Firebase', error);
+    }
   };
-
 
   const handleEditRecipe = (id) => {
     if (!isLoggedIn) return;
@@ -199,7 +197,7 @@ const App = () => {
         onClick={() => setShowFavorites(!showFavorites)}
         style={{ marginTop: '10px' }}
       >
-        {showFavorites ? 'Verbeg de favorieten' : 'Toon de favorieten'}
+        {showFavorites ? 'Verberg de favorieten' : 'Toon de favorieten'}
       </button>
 
       {showFavorites && (
@@ -337,7 +335,6 @@ const App = () => {
           </section>
         ))}
       </main>
-
     </div>
   );
 };
