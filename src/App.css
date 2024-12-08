@@ -1,4 +1,4 @@
-/* Reset and General Styles */
+
 * {
   margin: 0;
   padding: 0;
@@ -25,7 +25,7 @@ header {
 }
 
 header {
-  padding-top: 60px; /* Makes space for buttons */
+  padding-top: 60px;
   text-align: center;
   position: relative;
 }
@@ -73,6 +73,9 @@ button:hover {
   background: transparent; /* No hover effect */
 }
 
+.top-right-heart {
+  display: none;
+}
 
 .logout-button {
   position: fixed;
@@ -100,7 +103,6 @@ button:hover {
   display: block;
 }
 
-/* Login Modal */
 .login-modal {
   position: fixed;
   top: 0;
@@ -136,7 +138,6 @@ button:hover {
   margin: 10px;
 }
 
-/* Section Layout */
 main {
   width: 100%;
   max-width: 1200px;
@@ -154,7 +155,6 @@ section h2 {
   color: #333;
 }
 
-/* Recipe Grid */
 .recipe-list {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -235,7 +235,6 @@ section h2 {
   color: #e53e3e;
 }
 
-/* Add/Edit Recipe Form */
 .add-recipe-form {
   background-color: #fff;
   border-radius: 5px;
