@@ -285,9 +285,21 @@ section h2 {
   gap: 15px;
 }
 
+.favorites-category {
+  font-weight: bold;
+  font-style: italic;
+  color: red;
+}
+
+.favorites-likes {
+  font-size: .9rem;
+  margin-top: 8px;
+  color: rgb(167, 167, 167);
+}
+
 .favorite-recipe-card {
-  padding: 15px;
-  border: 1px solid #ddd;
+  padding: 10px;
+  border: 2px solid #a90000;
   border-radius: 5px;
   text-align: center;
 }

@@ -260,9 +260,10 @@ const App = () => {
               return (
                 topFavorite && (
                   <div className="favorite-recipe-card" key={topFavorite.id}>
+                    <p className="favorites-category"> ** {category} ** </p>
                     <h3>{topFavorite.title}</h3>
                     <p>{topFavorite.description}</p>
-                    <p>{topFavorite.likes} likes</p>
+                    <p className="favorites-likes">{topFavorite.likes} likes</p>
                   </div>
                 )
               );
