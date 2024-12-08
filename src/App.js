@@ -85,13 +85,18 @@ const App = () => {
 
   const handleLoginSubmit = (e) => {
     e.preventDefault();
-    if (loginCredentials.username === 'lego' && loginCredentials.password === 'zegel') {
+  
+    const storedUsername = process.env.REACT_APP_USERNAME;
+    const storedPassword = process.env.REACT_APP_PASSWORD;
+  
+    if (loginCredentials.username === storedUsername && loginCredentials.password === storedPassword) {
       setIsLoggedIn(true);
       setShowLoginModal(false);
     } else {
       alert('OH-ho-ho! De verkeerde gegevens!');
     }
   };
+  
 
   const handleLogout = () => {
     setIsLoggedIn(false);
