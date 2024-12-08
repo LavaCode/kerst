@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { db } from './firebase'; // Import Firebase configuration
-import { collection, onSnapshot, addDoc, deleteDoc, doc } from 'firebase/firestore';
+import { db } from './firebase'; // Import Firestore instance
+import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore'; // Import Firestore methods
 import './App.css';
 import MicrolinkCard from '@microlink/react';
 
@@ -23,23 +23,16 @@ const App = () => {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showFavorites, setShowFavorites] = useState(false);
 
-  const playSound = () => {
-    const sound = new Audio('/sounds/santa-hohoho.mp3');
-    sound.play();
-  };
-
+  // Fetch recipes from Firebase
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const unsubscribe = onSnapshot(collection(db, "recipes"), (snapshot) => {
-          const fetchedRecipes = snapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
-          setRecipeList(fetchedRecipes);
-        });
-
-        return () => unsubscribe();
+        const snapshot = await getDocs(collection(db, 'recipes')); // Correct way to fetch data
+        const recipes = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        setRecipeList(recipes);
       } catch (error) {
         console.error('Error fetching data from Firebase', error);
       }
@@ -48,18 +41,14 @@ const App = () => {
     fetchData();
   }, []);
 
-  const handleAddRecipeChange = (e) => {
-    const { name, value } = e.target;
-    setNewRecipe({ ...newRecipe, [name]: value });
-  };
-
+  // Add a new recipe to Firebase
   const handleAddRecipeSubmit = async (e) => {
     e.preventDefault();
-
-    const newRecipeWithId = { ...newRecipe, likes: 0, likedByUser: false };
-
+    
     try {
-      await addDoc(collection(db, "recipes"), newRecipeWithId);
+      const newRecipeWithId = { ...newRecipe, likes: 0, likedByUser: false };
+      const docRef = await addDoc(collection(db, 'recipes'), newRecipeWithId); // Use addDoc method
+      setRecipeList([...recipeList, { id: docRef.id, ...newRecipeWithId }]);
       setNewRecipe({
         title: '',
         description: '',
@@ -69,12 +58,18 @@ const App = () => {
         thumbnail: '',
       });
       setIsAddRecipeVisible(false);
-      playSound();
     } catch (error) {
       console.error('Error adding recipe to Firebase', error);
     }
   };
 
+  // Handle the input changes for new recipe form
+  const handleAddRecipeChange = (e) => {
+    const { name, value } = e.target;
+    setNewRecipe({ ...newRecipe, [name]: value });
+  };
+
+  // Handle login input changes
   const handleLoginInputChange = (e) => {
     const { name, value } = e.target;
     setLoginCredentials({ ...loginCredentials, [name]: value });
@@ -86,7 +81,7 @@ const App = () => {
       setIsLoggedIn(true);
       setShowLoginModal(false);
     } else {
-      alert('OH-ho-ho! De verkeerde gegevens!');
+      alert('Incorrect login details!');
     }
   };
 
@@ -98,9 +93,10 @@ const App = () => {
 
   const handleDeleteRecipe = async (id) => {
     try {
-      await deleteDoc(doc(db, "recipes", id));
+      await deleteDoc(doc(db, 'recipes', id)); // Correct deleteDoc method
+      setRecipeList((prevList) => prevList.filter((recipe) => recipe.id !== id));
     } catch (error) {
-      console.error('Error deleting recipe from Firebase', error);
+      console.error('Error deleting recipe', error);
     }
   };
 
@@ -112,7 +108,7 @@ const App = () => {
     setRecipeList((prevList) => prevList.filter((recipe) => recipe.id !== id));
   };
 
-  const handleLike = (id) => {
+  const handleLike = async (id) => {
     const updatedRecipes = recipeList.map((recipe) => {
       if (recipe.id === id) {
         const updatedRecipe = {
@@ -120,6 +116,11 @@ const App = () => {
           likedByUser: !recipe.likedByUser,
           likes: recipe.likedByUser ? recipe.likes - 1 : recipe.likes + 1,
         };
+        // Update the likes in Firestore
+        updateDoc(doc(db, 'recipes', id), {
+          likes: updatedRecipe.likes,
+          likedByUser: updatedRecipe.likedByUser,
+        });
         return updatedRecipe;
       }
       return recipe;
@@ -280,7 +281,7 @@ const App = () => {
       <main>
         {categories.map((category) => (
           <section key={category}>
-            <h2 className='recipe-title'>{category}</h2>
+            <h2 className="recipe-title">{category}</h2>
             <div className="recipe-list">
               {recipeList.filter((recipe) => recipe.category === category).length > 0 ? (
                 recipeList
