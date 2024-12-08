@@ -122,23 +122,23 @@ const App = () => {
   const handleLike = async (id) => {
     const userIp = await getUserIp();
     const recipeToUpdate = recipeList.find((recipe) => recipe.id === id);
-  
+
     if (recipeToUpdate) {
       const voters = Array.isArray(recipeToUpdate.voters) ? recipeToUpdate.voters : [];
-      const hasVoted = voters.includes(userIp);  
-  
+      const hasVoted = voters.includes(userIp);
+
       if (hasVoted) {
-        const updatedLikes = recipeToUpdate.likes > 0 ? recipeToUpdate.likes - 1 : 0; 
-        const updatedVoters = voters.filter((voter) => voter !== userIp); 
-        const updatedLikedByUser = false; 
-  
+        const updatedLikes = recipeToUpdate.likes > 0 ? recipeToUpdate.likes - 1 : 0;
+        const updatedVoters = voters.filter((voter) => voter !== userIp);
+        const updatedLikedByUser = false;
+
         const updatedRecipes = recipeList.map((recipe) =>
           recipe.id === id
             ? { ...recipe, likes: updatedLikes, likedByUser: updatedLikedByUser, voters: updatedVoters }
             : recipe
         );
         setRecipeList(updatedRecipes);
-  
+
         try {
           await updateDoc(doc(db, 'recipes', id), {
             likes: updatedLikes,
@@ -149,17 +149,17 @@ const App = () => {
           console.error('Error updating likes in Firebase', error);
         }
       } else {
-        const updatedLikes = recipeToUpdate.likes + 1; 
-        const updatedVoters = [...voters, userIp]; 
-        const updatedLikedByUser = true; 
-  
+        const updatedLikes = recipeToUpdate.likes + 1;
+        const updatedVoters = [...voters, userIp];
+        const updatedLikedByUser = true;
+
         const updatedRecipes = recipeList.map((recipe) =>
           recipe.id === id
             ? { ...recipe, likes: updatedLikes, likedByUser: updatedLikedByUser, voters: updatedVoters }
             : recipe
         );
         setRecipeList(updatedRecipes);
-  
+
         try {
           await updateDoc(doc(db, 'recipes', id), {
             likes: updatedLikes,
@@ -172,7 +172,7 @@ const App = () => {
       }
     }
   };
-  
+
   const getUserIp = async () => {
     const response = await fetch("https://api.ipify.org?format=json");
     const data = await response.json();
@@ -274,7 +274,12 @@ const App = () => {
 
       <button
         className="add-recipe-button"
-        onClick={() => setIsAddRecipeVisible(!isAddRecipeVisible)}
+        onClick={() => {
+          setIsAddRecipeVisible(!isAddRecipeVisible);
+          if (!isAddRecipeVisible) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        }}
       >
         {isAddRecipeVisible ? 'Annuleer' : 'Voeg recept toe'}
       </button>
