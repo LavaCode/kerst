@@ -1,0 +1,303 @@
+/* Reset and General Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #373960;
+  color: #333;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.6;
+}
+
+header {
+  width: 100%;
+  background-color: #910027;
+  color: #fff;
+  padding: 20px 10px;
+  text-align: center;
+}
+
+header {
+  padding-top: 60px; /* Makes space for buttons */
+  text-align: center;
+  position: relative;
+}
+
+header h1 {
+  font-size: 1.8rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 15px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+.show-favorites-button, .add-recipe-button {
+  position: fixed;
+  top: 10px;
+  z-index: 10;
+  right: 10px;
+}
+
+.login-button {
+  position: fixed;
+  top: 20px; /* Position from the top */
+  left: 20px; /* Align to the left */
+  z-index: 100; /* Above other elements */
+  background: transparent; /* Fully invisible background */
+  border: none !important; /* Remove borders */
+  font-size: 0; /* No text visible */
+  width: 100px; /* Ensure a clickable area */
+  height: 40px; /* Maintain height for clickability */
+  cursor: pointer;
+}
+.login-button:hover {
+  background: transparent; /* No hover effect */
+}
+
+
+.logout-button {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  max-width: 100px;
+  z-index: 100;
+  background-color: #007bff; /* Visible blue button */
+  color: #fff;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+.logout-button:hover {
+  background-color: #0056b3; /* Darker blue hover effect */
+}
+
+
+.show-favorites-button {
+  position: static;
+  margin: 10px auto;
+  display: block;
+}
+
+/* Login Modal */
+.login-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+}
+
+.login-modal-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.login-modal-content input {
+  width: 80%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.login-modal-content button {
+  margin: 10px;
+}
+
+/* Section Layout */
+main {
+  width: 100%;
+  max-width: 1200px;
+  padding: 20px;
+}
+
+section {
+  margin-bottom: 40px;
+}
+
+section h2 {
+  font-size: 1.4rem;
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+/* Recipe Grid */
+.recipe-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+}
+
+.recipe-card {
+  background-color: #fff;
+  border-radius: 5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  transition: transform 0.3s ease;
+}
+
+.recipe-card:hover {
+  transform: translateY(-5px);
+}
+
+.microlink-container img,
+.microlink-card {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.recipe-details {
+  padding: 10px;
+}
+
+.like-count {
+  font-size: 1rem;
+  padding-left: 10px;
+}
+
+.recipe-details h4 {
+  font-size: 1.2rem;
+  margin-bottom: 5px;
+}
+
+.recipe-details p {
+  font-size: 0.8rem;
+  margin-bottom: 5px;
+  color: #555;
+}
+
+.recipe-details small {
+  font-size: 0.6rem;
+  font-style: italic;
+  color: #888;
+}
+
+.no-recipes-message {
+  font-size: .8rem;
+  font-style: italic;
+  color: #888;
+}
+
+/* Like Button */
+.like-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.like-btn .fas.fa-heart {
+  color: #ddd;
+  font-size: 1.5rem;
+  transition: color 0.3s ease;
+}
+
+.like-btn .fas.fa-heart.liked {
+  color: #e53e3e;
+}
+
+/* Add/Edit Recipe Form */
+.add-recipe-form {
+  background-color: #fff;
+  border-radius: 5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  width: 90%;
+  max-width: 600px;
+  margin: 20px auto;
+}
+
+.add-recipe-form form {
+  display: flex;
+  flex-direction: column;
+}
+
+.add-recipe-form input,
+.add-recipe-form textarea,
+.add-recipe-form select {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.add-recipe-form button {
+  align-self: flex-start;
+  margin-top: 10px;
+}
+
+/* Favorites Section */
+.favorites-section {
+  background-color: #fff;
+  border-radius: 5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  width: 90%;
+  max-width: 1200px;
+  margin: 20px auto;
+  text-align: center;
+}
+
+.favorites-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+}
+
+.favorite-recipe-card {
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.admin-actions {
+  display: flex; 
+  justify-content: space-between; 
+  width: 20%;
+  gap: 10px; 
+}
+
+.recipe-title {
+  color: rgb(177, 2, 2)
+}
