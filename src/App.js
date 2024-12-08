@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { db } from './firebase';
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, addDoc } from 'firebase/firestore';
+import { deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import './App.css';
 import MicrolinkCard from '@microlink/react';
 
 const App = () => {
   const [recipeList, setRecipeList] = useState([]);
-  const [userIp, setUserIp] = useState(null);
   const [isAddRecipeVisible, setIsAddRecipeVisible] = useState(false);
   const [newRecipe, setNewRecipe] = useState({
     title: '',
@@ -25,19 +25,12 @@ const App = () => {
   const [showFavorites, setShowFavorites] = useState(false);
 
   useEffect(() => {
-    const fetchUserIp = async () => {
-      const response = await fetch('https://api.ipify.org?format=json');
-      const data = await response.json();
-      setUserIp(data.ip);
-    };
-    fetchUserIp();
-
     const fetchData = async () => {
       try {
         const snapshot = await getDocs(collection(db, 'recipes'));
-        const recipes = snapshot.docs.map((doc) => ({
+        const recipes = snapshot.docs.map(doc => ({
           id: doc.id,
-          ...doc.data(),
+          ...doc.data()
         }));
         setRecipeList(recipes);
       } catch (error) {
@@ -52,7 +45,7 @@ const App = () => {
     e.preventDefault();
 
     try {
-      const newRecipeWithId = { ...newRecipe, likes: 0, likedByUser: false, voters: [] };
+      const newRecipeWithId = { ...newRecipe, likes: 0, likedByUser: false };
       const docRef = await addDoc(collection(db, 'recipes'), newRecipeWithId);
 
       setRecipeList([...recipeList, { id: docRef.id, ...newRecipeWithId }]);
@@ -66,9 +59,27 @@ const App = () => {
         thumbnail: '',
       });
       setIsAddRecipeVisible(false);
+      const sound = new Audio('/sounds/santa-hohoho.mp3');
+      sound.play();
+      playSound();
     } catch (error) {
       console.error('Error adding recipe to Firebase', error);
     }
+  };
+
+  const playSound = () => {
+    const sound = new Audio('/sounds/santa-hohoho.mp3');
+    sound.play();
+  };
+
+  const handleAddRecipeChange = (e) => {
+    const { name, value } = e.target;
+    setNewRecipe({ ...newRecipe, [name]: value });
+  };
+
+  const handleLoginInputChange = (e) => {
+    const { name, value } = e.target;
+    setLoginCredentials({ ...loginCredentials, [name]: value });
   };
 
   const handleLoginSubmit = (e) => {
@@ -109,47 +120,50 @@ const App = () => {
   };
 
   const handleLike = async (id) => {
-    if (!userIp) return;
-
+    const userIp = await getUserIp();
     const recipeToUpdate = recipeList.find((recipe) => recipe.id === id);
-
+  
     if (recipeToUpdate) {
       const voters = Array.isArray(recipeToUpdate.voters) ? recipeToUpdate.voters : [];
-      const hasVoted = voters.includes(userIp);
-
+      const hasVoted = voters.includes(userIp);  
+  
       if (hasVoted) {
-        const updatedLikes = recipeToUpdate.likes > 0 ? recipeToUpdate.likes - 1 : 0;
-        const updatedVoters = voters.filter((voter) => voter !== userIp);
-
+        const updatedLikes = recipeToUpdate.likes > 0 ? recipeToUpdate.likes - 1 : 0; 
+        const updatedVoters = voters.filter((voter) => voter !== userIp); 
+        const updatedLikedByUser = false; 
+  
         const updatedRecipes = recipeList.map((recipe) =>
           recipe.id === id
-            ? { ...recipe, likes: updatedLikes, voters: updatedVoters }
+            ? { ...recipe, likes: updatedLikes, likedByUser: updatedLikedByUser, voters: updatedVoters }
             : recipe
         );
         setRecipeList(updatedRecipes);
-
+  
         try {
           await updateDoc(doc(db, 'recipes', id), {
             likes: updatedLikes,
+            likedByUser: updatedLikedByUser,
             voters: updatedVoters,
           });
         } catch (error) {
           console.error('Error updating likes in Firebase', error);
         }
       } else {
-        const updatedLikes = recipeToUpdate.likes + 1;
-        const updatedVoters = [...voters, userIp];
-
+        const updatedLikes = recipeToUpdate.likes + 1; 
+        const updatedVoters = [...voters, userIp]; 
+        const updatedLikedByUser = true; 
+  
         const updatedRecipes = recipeList.map((recipe) =>
           recipe.id === id
-            ? { ...recipe, likes: updatedLikes, voters: updatedVoters }
+            ? { ...recipe, likes: updatedLikes, likedByUser: updatedLikedByUser, voters: updatedVoters }
             : recipe
         );
         setRecipeList(updatedRecipes);
-
+  
         try {
           await updateDoc(doc(db, 'recipes', id), {
             likes: updatedLikes,
+            likedByUser: updatedLikedByUser,
             voters: updatedVoters,
           });
         } catch (error) {
@@ -158,8 +172,20 @@ const App = () => {
       }
     }
   };
+  
+  const getUserIp = async () => {
+    const response = await fetch("https://api.ipify.org?format=json");
+    const data = await response.json();
+    return data.ip;
+  };
 
   const categories = ['Amuse', 'Voor', 'Hoofd', 'Na'];
+
+  const getTopFavorite = (category) => {
+    const filteredRecipes = recipeList.filter((recipe) => recipe.category === category);
+    const topFavorite = filteredRecipes.sort((a, b) => b.likes - a.likes)[0];
+    return topFavorite;
+  };
 
   return (
     <div className="App">
@@ -197,7 +223,7 @@ const App = () => {
                 name="username"
                 placeholder="Username"
                 value={loginCredentials.username}
-                onChange={(e) => setLoginCredentials({ ...loginCredentials, username: e.target.value })}
+                onChange={handleLoginInputChange}
                 required
               />
               <input
@@ -205,7 +231,7 @@ const App = () => {
                 name="password"
                 placeholder="Password"
                 value={loginCredentials.password}
-                onChange={(e) => setLoginCredentials({ ...loginCredentials, password: e.target.value })}
+                onChange={handleLoginInputChange}
                 required
               />
               <button type="submit">Login</button>
@@ -215,6 +241,34 @@ const App = () => {
             </form>
           </div>
         </div>
+      )}
+
+      <button
+        className="show-favorites-button"
+        onClick={() => setShowFavorites(!showFavorites)}
+        style={{ marginTop: '10px' }}
+      >
+        {showFavorites ? 'Verberg de favorieten' : 'Toon de favorieten'}
+      </button>
+
+      {showFavorites && (
+        <section className="favorites-section">
+          <h2>DE FAVORIETEN BOVEN IN HET KLASSEMENT</h2>
+          <div className="favorites-row">
+            {categories.map((category) => {
+              const topFavorite = getTopFavorite(category);
+              return (
+                topFavorite && (
+                  <div className="favorite-recipe-card" key={topFavorite.id}>
+                    <h3>{topFavorite.title}</h3>
+                    <p>{topFavorite.description}</p>
+                    <p>{topFavorite.likes} likes</p>
+                  </div>
+                )
+              );
+            })}
+          </div>
+        </section>
       )}
 
       <button
@@ -233,14 +287,14 @@ const App = () => {
               name="title"
               placeholder="Titel"
               value={newRecipe.title}
-              onChange={(e) => setNewRecipe({ ...newRecipe, title: e.target.value })}
+              onChange={handleAddRecipeChange}
               required
             />
             <textarea
               name="description"
               placeholder="Omschrijving"
               value={newRecipe.description}
-              onChange={(e) => setNewRecipe({ ...newRecipe, description: e.target.value })}
+              onChange={handleAddRecipeChange}
               required
               maxLength={75}
             />
@@ -249,13 +303,13 @@ const App = () => {
               name="submitter"
               placeholder="Je naam"
               value={newRecipe.submitter}
-              onChange={(e) => setNewRecipe({ ...newRecipe, submitter: e.target.value })}
+              onChange={handleAddRecipeChange}
               required
             />
             <select
               name="category"
               value={newRecipe.category}
-              onChange={(e) => setNewRecipe({ ...newRecipe, category: e.target.value })}
+              onChange={handleAddRecipeChange}
               required
             >
               <option value="Amuse">Amuse</option>
@@ -268,7 +322,7 @@ const App = () => {
               name="url"
               placeholder="Link naar recept (optioneel)"
               value={newRecipe.url}
-              onChange={(e) => setNewRecipe({ ...newRecipe, url: e.target.value })}
+              onChange={handleAddRecipeChange}
             />
             <button type="submit">{newRecipe.id ? 'Update recept' : 'Voeg toe'}</button>
           </form>
@@ -285,16 +339,27 @@ const App = () => {
                   .filter((recipe) => recipe.category === category)
                   .map((recipe) => (
                     <div className="recipe-card" key={recipe.id}>
-                      <div className="microlink-container">
-                        <MicrolinkCard url={recipe.url} className="microlink-card" />
+                      {recipe.url ? (
+                        <div className="microlink-container">
+                          <MicrolinkCard
+                            url={recipe.url}
+                            className="microlink-card"
+                          />
+                        </div>
+                      ) : (
+                        <div className="microlink-container">
+                          <img
+                            src="https://via.placeholder.com/400x200.png?text=No+URL"
+                            alt="Recipe Preview"
+                            className="microlink-card"
+                          />
+                        </div>
+                      )}
+
+                      <div className={`like-btn ${recipe.likedByUser ? 'liked' : ''}`} onClick={() => handleLike(recipe.id)}>
+                        <i className={`fas fa-heart ${recipe.likedByUser ? 'liked' : ''}`}></i>
                       </div>
 
-                      <div
-                        className={`like-btn ${recipe.voters.includes(userIp) ? 'liked' : ''}`}
-                        onClick={() => handleLike(recipe.id)}
-                      >
-                        <i className={`fas fa-heart ${recipe.voters.includes(userIp) ? 'liked' : ''}`}></i>
-                      </div>
 
                       <div className="like-count">
                         <span>{recipe.likes} likes</span>
@@ -304,18 +369,17 @@ const App = () => {
                         <h4>{recipe.title}</h4>
                         <p>{recipe.description}</p>
                         <small>Submitted by: {recipe.submitter}</small>
+                        {isLoggedIn && (
+                          <div className="admin-actions">
+                            <button onClick={() => handleEditRecipe(recipe.id)}>Edit</button>
+                            <button onClick={() => handleDeleteRecipe(recipe.id)}>Delete</button>
+                          </div>
+                        )}
                       </div>
-
-                      {isLoggedIn && (
-                        <div className="admin-actions">
-                          <button onClick={() => handleEditRecipe(recipe.id)}>Edit</button>
-                          <button onClick={() => handleDeleteRecipe(recipe.id)}>Delete</button>
-                        </div>
-                      )}
                     </div>
                   ))
               ) : (
-                <p>Geen recepten beschikbaar in deze categorie.</p>
+                <p className="no-recipes-message">Nog geen recepten toegevoegd, begin NU!</p>
               )}
             </div>
           </section>
