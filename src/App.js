@@ -120,25 +120,72 @@ const App = () => {
   };
 
   const handleLike = async (id) => {
-    const updatedRecipes = recipeList.map((recipe) => {
-      if (recipe.id === id) {
-        const updatedRecipe = {
-          ...recipe,
-          likedByUser: !recipe.likedByUser,
-          likes: recipe.likedByUser ? recipe.likes - 1 : recipe.likes + 1,
-        };
-        updateDoc(doc(db, 'recipes', id), {
-          likes: updatedRecipe.likes,
-          likedByUser: updatedRecipe.likedByUser,
-        });
-        return updatedRecipe;
+    const userIp = await getUserIp();
+    const recipeToUpdate = recipeList.find((recipe) => recipe.id === id);
+  
+    if (recipeToUpdate) {
+      const voters = Array.isArray(recipeToUpdate.voters) ? recipeToUpdate.voters : [];
+      const hasVoted = voters.includes(userIp);
+  
+      if (recipeToUpdate.likedByUser) {
+        const updatedLikes = recipeToUpdate.likes - 1;
+        const updatedVoters = hasVoted
+          ? voters 
+          : [...voters, userIp]; 
+        const updatedLikedByUser = false;
+
+        const updatedRecipes = recipeList.map((recipe) =>
+          recipe.id === id
+            ? { ...recipe, likes: updatedLikes, likedByUser: updatedLikedByUser, voters: updatedVoters }
+            : recipe
+        );
+        setRecipeList(updatedRecipes);
+  
+        try {
+          await updateDoc(doc(db, 'recipes', id), {
+            likes: updatedLikes,
+            likedByUser: updatedLikedByUser,
+            voters: updatedVoters, 
+          });
+        } catch (error) {
+          console.error('Error updating likes in Firebase', error);
+        }
+      } else {
+        if (hasVoted) {
+          const updatedLikes = recipeToUpdate.likes + 1;
+          const updatedVoters = voters; 
+          const updatedLikedByUser = true;
+          const updatedRecipes = recipeList.map((recipe) =>
+            recipe.id === id
+              ? { ...recipe, likes: updatedLikes, likedByUser: updatedLikedByUser, voters: updatedVoters }
+              : recipe
+          );
+          setRecipeList(updatedRecipes);
+  
+          try {
+            await updateDoc(doc(db, 'recipes', id), {
+              likes: updatedLikes,
+              likedByUser: updatedLikedByUser,
+              voters: updatedVoters, 
+            });
+          } catch (error) {
+            console.error('Error updating likes in Firebase', error);
+          }
+        } else {
+
+          alert("Je hebt al gestemd snoeperd.");
+        }
       }
-      return recipe;
-    });
-
-    setRecipeList(updatedRecipes);
+    }
   };
-
+  
+  const getUserIp = async () => {
+    const response = await fetch("https://api.ipify.org?format=json");
+    const data = await response.json();
+    return data.ip;
+  };
+  
+  
   const categories = ['Amuse', 'Voor', 'Hoofd', 'Na'];
 
   const getTopFavorite = (category) => {
