@@ -60,9 +60,7 @@ const App = () => {
         thumbnail: '',
       });
       setIsAddRecipeVisible(false);
-      
       playSound();
-
     } catch (error) {
       console.error('Error adding recipe to Firebase', error);
     }
