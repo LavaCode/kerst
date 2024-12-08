@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from './firebase';
-import { collection, getDocs, addDoc } from 'firebase/firestore'; 
+import { collection, getDocs, addDoc } from 'firebase/firestore';
 import { deleteDoc, doc, updateDoc } from 'firebase/firestore';
-
 import './App.css';
 import MicrolinkCard from '@microlink/react';
 
@@ -48,9 +47,9 @@ const App = () => {
     try {
       const newRecipeWithId = { ...newRecipe, likes: 0, likedByUser: false };
       const docRef = await addDoc(collection(db, 'recipes'), newRecipeWithId);
-      
+
       setRecipeList([...recipeList, { id: docRef.id, ...newRecipeWithId }]);
-    
+
       setNewRecipe({
         title: '',
         description: '',
@@ -83,10 +82,10 @@ const App = () => {
 
   const handleLoginSubmit = (e) => {
     e.preventDefault();
-  
+
     const storedUsername = process.env.REACT_APP_USERNAME;
     const storedPassword = process.env.REACT_APP_PASSWORD;
-  
+
     if (loginCredentials.username === storedUsername && loginCredentials.password === storedPassword) {
       setIsLoggedIn(true);
       setShowLoginModal(false);
@@ -94,7 +93,7 @@ const App = () => {
       alert('OH-ho-ho! De verkeerde gegevens!');
     }
   };
-  
+
 
   const handleLogout = () => {
     setIsLoggedIn(false);
@@ -122,16 +121,16 @@ const App = () => {
   const handleLike = async (id) => {
     const userIp = await getUserIp();
     const recipeToUpdate = recipeList.find((recipe) => recipe.id === id);
-  
+
     if (recipeToUpdate) {
       const voters = Array.isArray(recipeToUpdate.voters) ? recipeToUpdate.voters : [];
       const hasVoted = voters.includes(userIp);
-  
+
       if (recipeToUpdate.likedByUser) {
         const updatedLikes = recipeToUpdate.likes - 1;
         const updatedVoters = hasVoted
-          ? voters 
-          : [...voters, userIp]; 
+          ? voters
+          : [...voters, userIp];
         const updatedLikedByUser = false;
 
         const updatedRecipes = recipeList.map((recipe) =>
@@ -140,12 +139,12 @@ const App = () => {
             : recipe
         );
         setRecipeList(updatedRecipes);
-  
+
         try {
           await updateDoc(doc(db, 'recipes', id), {
             likes: updatedLikes,
             likedByUser: updatedLikedByUser,
-            voters: updatedVoters, 
+            voters: updatedVoters,
           });
         } catch (error) {
           console.error('Error updating likes in Firebase', error);
@@ -153,7 +152,7 @@ const App = () => {
       } else {
         if (hasVoted) {
           const updatedLikes = recipeToUpdate.likes + 1;
-          const updatedVoters = voters; 
+          const updatedVoters = voters;
           const updatedLikedByUser = true;
           const updatedRecipes = recipeList.map((recipe) =>
             recipe.id === id
@@ -161,12 +160,12 @@ const App = () => {
               : recipe
           );
           setRecipeList(updatedRecipes);
-  
+
           try {
             await updateDoc(doc(db, 'recipes', id), {
               likes: updatedLikes,
               likedByUser: updatedLikedByUser,
-              voters: updatedVoters, 
+              voters: updatedVoters,
             });
           } catch (error) {
             console.error('Error updating likes in Firebase', error);
@@ -178,14 +177,14 @@ const App = () => {
       }
     }
   };
-  
+
   const getUserIp = async () => {
     const response = await fetch("https://api.ipify.org?format=json");
     const data = await response.json();
     return data.ip;
   };
-  
-  
+
+
   const categories = ['Amuse', 'Voor', 'Hoofd', 'Na'];
 
   const getTopFavorite = (category) => {
