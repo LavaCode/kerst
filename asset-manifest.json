@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/kerst/static/css/main.3b976bf5.css",
-    "main.js": "/kerst/static/js/main.e683a590.js",
+    "main.js": "/kerst/static/js/main.4866697b.js",
     "static/js/488.454624ad.chunk.js": "/kerst/static/js/488.454624ad.chunk.js",
     "index.html": "/kerst/index.html",
     "main.3b976bf5.css.map": "/kerst/static/css/main.3b976bf5.css.map",
-    "main.e683a590.js.map": "/kerst/static/js/main.e683a590.js.map",
+    "main.4866697b.js.map": "/kerst/static/js/main.4866697b.js.map",
     "488.454624ad.chunk.js.map": "/kerst/static/js/488.454624ad.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.3b976bf5.css",
-    "static/js/main.e683a590.js"
+    "static/js/main.4866697b.js"
   ]
 }
