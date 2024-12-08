@@ -85,7 +85,7 @@ const App = () => {
 
   const handleLoginSubmit = (e) => {
     e.preventDefault();
-    if (loginCredentials.username === 'admin' && loginCredentials.password === 'password') {
+    if (loginCredentials.username === 'lego' && loginCredentials.password === 'zegel') {
       setIsLoggedIn(true);
       setShowLoginModal(false);
     } else {
